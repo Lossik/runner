@@ -1,0 +1,11 @@
+{
+	"name": "lossik/runner",
+	"autoload": {
+		"psr-4": {
+			"Lossik\\Runner\\": "src/"
+		}
+	},
+	"require": {
+		"nette/di": "~2.4"
+	}
+}
