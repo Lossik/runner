@@ -25,10 +25,10 @@ class Runner
 	}
 
 
-	public function Run($settingName = null)
+	public function Run($processorName = null)
 	{
-		$runn = $settingName ?
-			[$this->settings[$settingName]] :
+		$runn = $processorName ?
+			[$this->settings[$processorName]] :
 			$this->settings;
 
 		foreach ($runn as $setting) {
@@ -48,22 +48,49 @@ class Runner
 
 	protected function createProcessor($settingProcessor)
 	{
-		$processor = new $settingProcessor['class'];
-		InjectExtension::callInjects($this->di, $processor);
-		if (isset($settingProcessor['setup'])) {
-			foreach ($settingProcessor['setup'] as list($method, $arguments)) {
-				$processor->{$method}(...$arguments);
-			}
-		}
+		$processor = $this->create(self::ifset($settingProcessor, 'class'), self::ifset($settingProcessor, 'setup', []));
 		if ($processor instanceof IProcessor) {
 			foreach ($processor->getParametersClasses() as $class) {
-				$parameter = new $class();
-				InjectExtension::callInjects($this->di, $parameter);
+				$parameter = $this->create($class, [], IParameter::class);
+				$processor->setupParameter($parameter);
 				$this->registerParameter($parameter);
 			}
 		}
 
 		return $processor;
+	}
+
+
+	protected function create($class, $setup = [], $instanceof = null)
+	{
+		var_dump($class);
+		$object = new $class;
+		if ($instanceof) {
+			if (!($object instanceof $instanceof)) {
+				throw new \LogicException();
+			}
+		}
+		InjectExtension::callInjects($this->di, $object);
+		foreach ($setup as list($method, $arguments)) {
+			$object->{$method}(...$arguments);
+		}
+
+		return $object;
+	}
+
+
+	private static function ifset($array, $path, $default = null, $pathDelimiter = '/')
+	{
+		foreach ($p = explode($pathDelimiter, $path) as $key) {
+			if (isset($array[$key])) {
+				$array = $array[$key];
+			}
+			else {
+				return $default;
+			}
+		}
+
+		return $array;
 	}
 
 
@@ -75,16 +102,8 @@ class Runner
 
 	protected function getSourceData($settingSource)
 	{
-		$source = new $settingSource['class'];
-		if (!($source instanceof ISource)) {
-			throw new \LogicException();
-		}
-		InjectExtension::callInjects($this->di, $source);
-		if (isset($settingSource['setup'])) {
-			foreach ($settingSource['setup'] as list($method, $arguments)) {
-				$source->{$method}(...$arguments);
-			}
-		}
+		/** @var ISource $source */
+		$source = $this->create(self::ifset($settingSource, 'class'), self::ifset($settingSource, 'setup', []), ISource::class);
 
 		return $source->getSourceData();
 	}
@@ -103,6 +122,5 @@ class Runner
 
 		return $result;
 	}
-
 
 }

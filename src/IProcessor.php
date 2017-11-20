@@ -11,6 +11,8 @@ interface IProcessor
 
 	public function getParametersClasses();
 
+	public function setupParameter(IParameter $parameter);
+
 	public function process($parameters);
 
 }
