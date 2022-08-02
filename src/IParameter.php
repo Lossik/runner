@@ -1,15 +1,16 @@
 <?php
 
-
 namespace Lossik\Runner;
-
 
 interface IParameter
 {
 
-	public function getName();
+	public function getName(): string;
 
-	public function getParametersItems($sourceData);
-
+	/**
+	 * @param array<mixed> $sourceData
+	 * @return array<mixed>
+	 */
+	public function getParametersItems(array $sourceData): array;
 
 }

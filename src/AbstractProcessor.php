@@ -1,35 +1,42 @@
 <?php
 
-
 namespace Lossik\Runner;
-
 
 class AbstractProcessor implements IProcessor
 {
 
-
-	public function getParameters()
+	/**
+	 * @return array<string>
+	 */
+	public function getParameters(): array
 	{
 		return [];
 	}
 
-
-	public function getParametersClasses()
+	/**
+	 * @return array<string>
+	 */
+	public function getParametersClasses(): array
 	{
 		return [];
 	}
 
-
-	public function setupParameter(IParameter $parameter)
+	/**
+	 * @param IParameter $parameter
+	 * @return void
+	 */
+	public function setupParameter(IParameter $parameter): void
 	{
 
 	}
 
-
-	public function process($parameters)
+	/**
+	 * @param array<mixed> $parameters
+	 * @return void
+	 */
+	public function process(array $parameters): void
 	{
 
 	}
-
 
 }

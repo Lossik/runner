@@ -1,18 +1,29 @@
 <?php
 
-
 namespace Lossik\Runner;
-
 
 interface IProcessor
 {
 
-	public function getParameters();
+	/**
+	 * @return array<string>
+	 */
+	public function getParameters(): array;
 
-	public function getParametersClasses();
+	/**
+	 * @return array<string>
+	 */
+	public function getParametersClasses(): array;
 
-	public function setupParameter(IParameter $parameter);
+	/**
+	 * @param IParameter $parameter
+	 */
+	public function setupParameter(IParameter $parameter): void;
 
-	public function process($parameters);
+	/**
+	 * @param array<mixed> $parameters
+	 * @return void
+	 */
+	public function process(array $parameters): void;
 
 }

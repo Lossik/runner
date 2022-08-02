@@ -1,23 +1,22 @@
 <?php
 
-
 namespace Lossik\Runner;
-
 
 class AbstractParameter implements IParameter
 {
 
-
-	public function getName()
+	public function getName(): string
 	{
 		return 'abstract';
 	}
 
-
-	public function getParametersItems($sourceData)
+	/**
+	 * @param array<mixed> $sourceData
+	 * @return array<mixed>
+	 */
+	public function getParametersItems(array $sourceData): array
 	{
 		return [];
 	}
-
 
 }
