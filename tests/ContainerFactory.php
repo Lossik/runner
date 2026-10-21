@@ -16,11 +16,19 @@ final class ContainerFactory
     /** @var array<int, string> */
     private static array $dirs = [];
 
+    public static function tempDir(): string
+    {
+        $dir = str_replace('\\', '/', sys_get_temp_dir()) . '/runner-tests-' . uniqid();
+        mkdir($dir, 0777, true);
+        self::$dirs[] = $dir;
+
+        return $dir;
+    }
+
     public static function create(string $neon, bool $injectExtension = true): Container
     {
-        $dir = sys_get_temp_dir() . '/runner-tests-' . uniqid();
-        mkdir($dir . '/cache', 0777, true);
-        self::$dirs[] = $dir;
+        $dir = self::tempDir();
+        mkdir($dir . '/cache');
         file_put_contents($dir . '/config.neon', $neon);
 
         $loader = new ContainerLoader($dir . '/cache', true);
