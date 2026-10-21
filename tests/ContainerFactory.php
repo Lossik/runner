@@ -47,6 +47,19 @@ final class ContainerFactory
         return new $class();
     }
 
+    public static function compile(string $neon): Compiler
+    {
+        $file = self::tempDir() . '/config.neon';
+        file_put_contents($file, $neon);
+
+        $compiler = new Compiler();
+        $compiler->addExtension('extensions', new ExtensionsExtension());
+        $compiler->loadConfig($file);
+        $compiler->compile();
+
+        return $compiler;
+    }
+
     public static function cleanup(): void
     {
         foreach (self::$dirs as $dir) {

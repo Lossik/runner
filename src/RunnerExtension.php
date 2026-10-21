@@ -40,6 +40,7 @@ class RunnerExtension extends CompilerExtension
         $neon = new NeonAdapter();
         foreach ($incFiles as $file) {
             if (!in_array($file, $this->includedFiles)) {
+                $this->compiler->addDependencies([$file]);
                 $config = Helpers::merge($neon->load($file), $config);
                 $this->includedFiles[] = $file;
             }
@@ -57,6 +58,7 @@ class RunnerExtension extends CompilerExtension
         $files = [];
         foreach ($included as $include) {
             if (is_dir($include)) {
+                $this->compiler->addDependencies([realpath($include)]);
                 foreach (scandir($include) as $file) {
                     if ($file == '..' || $file == '.' || strtolower(pathinfo($file, PATHINFO_EXTENSION)) != 'neon') {
                         continue;
