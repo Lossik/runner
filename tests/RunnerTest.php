@@ -101,6 +101,33 @@ final class RunnerTest extends TestCase
         $this->assertSame([['setup'], ['process', self::PAYLOAD]], RecordingProcessor::$log);
     }
 
+    /**
+     * @return array<string, array{callable(Runner): void}>
+     */
+    public static function unknownJobCalls(): array
+    {
+        return [
+            'Run' => [static fn(Runner $runner) => $runner->Run('missing')],
+            'RunWidthSourceData' => [static fn(Runner $runner) => $runner->RunWidthSourceData('missing', [])],
+        ];
+    }
+
+    /**
+     * @param callable(Runner): void $call
+     */
+    #[DataProvider('unknownJobCalls')]
+    public function testUnknownJobThrowsLogicException(callable $call): void
+    {
+        $neon = $this->neon(
+            '    jobA:' . "\n"
+            . '        processor: {class: ' . RecordingProcessor::class . '}' . "\n",
+        );
+
+        $this->expectException(LogicException::class);
+
+        $call(ContainerFactory::create($neon)->getByType(Runner::class));
+    }
+
     private function neon(string $jobs, bool $decorator = true, string $services = ''): string
     {
         return 'extensions:' . "\n" . '    runner: Lossik\\Runner\\RunnerExtension' . "\n\n"

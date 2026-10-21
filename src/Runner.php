@@ -38,6 +38,9 @@ class Runner
      */
     public function Run(?string $processorName = null): void
     {
+        if ($processorName) {
+            $this->assertKnownProcessor($processorName);
+        }
         $runn = $processorName
             ?
             [$this->settings[$processorName]]
@@ -51,6 +54,13 @@ class Runner
                 $parameters = $this->getParameters($sourceData, $processor->getParameters());
                 $processor->process($parameters);
             }
+        }
+    }
+
+    private function assertKnownProcessor(string $processorName): void
+    {
+        if (!isset($this->settings[$processorName])) {
+            throw new LogicException(sprintf('Unknown processor "%s".', $processorName));
         }
     }
 
@@ -173,6 +183,7 @@ class Runner
      */
     public function RunWidthSourceData(string $processorName, array $sourceData): void
     {
+        $this->assertKnownProcessor($processorName);
         $setting = $this->settings[$processorName];
         $processor = $this->createProcessor($setting['processor']);
         if ($processor instanceof IProcessor) {
