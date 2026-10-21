@@ -34,7 +34,8 @@ class RunnerExtension extends CompilerExtension
         if (!isset($config['include'])) {
             return $config;
         }
-        $incFiles = $this->getFilesFromIncluded($config['include']);
+        $include = is_string($config['include']) ? [$config['include']] : $config['include'];
+        $incFiles = $this->getFilesFromIncluded($include);
         unset($config['include']);
         $neon = new NeonAdapter();
         foreach ($incFiles as $file) {
@@ -57,15 +58,16 @@ class RunnerExtension extends CompilerExtension
         foreach ($included as $include) {
             if (is_dir($include)) {
                 foreach (scandir($include) as $file) {
-                    if ($file == '..' || $file == '.' || strtolower(substr($file, strrpos($file, '.') + 1)) != 'neon') {
+                    if ($file == '..' || $file == '.' || strtolower(pathinfo($file, PATHINFO_EXTENSION)) != 'neon') {
                         continue;
                     }
-                    if (is_file($include . $file)) {
-                        $files[] = realpath($include . $file);
+                    $path = rtrim($include, '/\\') . '/' . $file;
+                    if (is_file($path)) {
+                        $files[] = realpath($path);
                     }
                 }
             }
-            if (is_file($include) && strtolower(substr($include, strrpos($include, '.') + 1)) == 'neon') {
+            if (is_file($include) && strtolower(pathinfo($include, PATHINFO_EXTENSION)) == 'neon') {
                 $files[] = realpath($include);
             }
         }
