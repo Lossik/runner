@@ -1,0 +1,22 @@
+stages:
+  - test
+
+default:
+  timeout: 15m
+
+.php-matrix:
+  stage: test
+  image: php:${PHP_PATCH}-cli
+  parallel:
+    matrix:
+      - PHP_PATCH: ['8.2.35', '8.3.36', '8.4.27', '8.5.12']
+  script:
+    - bash tools/ci.sh
+
+unit:
+  extends: .php-matrix
+
+lowest:
+  extends: .php-matrix
+  variables:
+    DEPS: lowest

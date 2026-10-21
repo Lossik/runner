@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="lossik/runner">
+	<description>PSR-12; Runner::Run() and Runner::RunWidthSourceData() cannot be renamed before the next major.</description>
+	<file>src</file>
+	<file>tests</file>
+	<arg name="extensions" value="php"/>
+	<arg value="p"/>
+	<rule ref="PSR12"/>
+	<rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+		<exclude-pattern>src/Runner\.php</exclude-pattern>
+	</rule>
+</ruleset>

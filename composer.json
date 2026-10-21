@@ -1,11 +1,36 @@
 {
 	"name": "lossik/runner",
+	"description": "Runs batch jobs configured in NEON: a processor, an optional source and named parameters. Nette DI extension.",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Petr Losse"
+		}
+	],
+	"require": {
+		"php": "^8.2",
+		"nette/di": "^3.0.7",
+		"nette/neon": "^3.4",
+		"nette/schema": "^1.0"
+	},
+	"require-dev": {
+		"phpstan/phpstan": "^2.1",
+		"phpunit/phpunit": "^11.5",
+		"squizlabs/php_codesniffer": "^3.13"
+	},
 	"autoload": {
 		"psr-4": {
 			"Lossik\\Runner\\": "src/"
 		}
 	},
-	"require": {
-		"nette/di": "^3.0.7"
+	"autoload-dev": {
+		"psr-4": {
+			"Lossik\\Runner\\Tests\\": "tests/"
+		}
+	},
+	"config": {
+		"sort-packages": true,
+		"allow-plugins": false
 	}
 }
