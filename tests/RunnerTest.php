@@ -71,12 +71,28 @@ final class RunnerTest extends TestCase
         );
     }
 
-    private function neon(string $jobs, bool $decorator = true): string
+    public function testServiceProcessorGetsItsParameters(): void
+    {
+        $neon = $this->neon(
+            '    jobSvc:' . "\n"
+            . '        processor: {service: procSvc}' . "\n"
+            . '        source: {class: ' . ArraySource::class . '}' . "\n",
+            true,
+            '    procSvc: ' . RecordingProcessor::class . "\n",
+        );
+
+        ContainerFactory::create($neon)->getByType(Runner::class)->Run('jobSvc');
+
+        $this->assertSame([['setup'], ['process', self::PAYLOAD]], RecordingProcessor::$log);
+    }
+
+    private function neon(string $jobs, bool $decorator = true, string $services = ''): string
     {
         return 'extensions:' . "\n" . '    runner: Lossik\\Runner\\RunnerExtension' . "\n\n"
             . ($decorator
                 ? 'decorator:' . "\n" . '    Lossik\\Runner\\Runner:' . "\n" . '        inject: true' . "\n\n"
                 : '')
+            . ($services !== '' ? 'services:' . "\n" . $services . "\n" : '')
             . 'runner:' . "\n" . $jobs;
     }
 }

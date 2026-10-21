@@ -17,7 +17,7 @@ class Runner
     protected array $settings;
 
     /** @var array<IParameter> */
-    protected array $parameters;
+    protected array $parameters = [];
 
     public function __construct(array $settings)
     {
@@ -66,12 +66,11 @@ class Runner
             if (!$processor instanceof IProcessor) {
                 throw new LogicException('Bad processor config, must be type of IProcessor');
             }
-
-            return $processor;
+        } else {
+            $class = self::ifset($settingProcessor, 'class');
+            $setup = self::ifset($settingProcessor, 'setup', []);
+            $processor = $this->create($class, $setup, IProcessor::class);
         }
-        $class = self::ifset($settingProcessor, 'class');
-        $setup = self::ifset($settingProcessor, 'setup', []);
-        $processor = $this->create($class, $setup, IProcessor::class);
         if ($processor instanceof IProcessor) {
             foreach ($processor->getParametersClasses() as $parametersClass) {
                 $parameter = $this->create($parametersClass, [], IParameter::class);
