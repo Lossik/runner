@@ -21,7 +21,8 @@ class RunnerExtension extends CompilerExtension
         $config = $this->expandConfigInclude($config);
 
         $container->addDefinition($this->prefix('lossik.runner'))
-            ->setType(Runner::class)->setFactory(Runner::class, [$config]);
+            ->setType(Runner::class)->setFactory(Runner::class, [$config])
+            ->addSetup('$di', ['@container']);
     }
 
     /**

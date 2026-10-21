@@ -8,6 +8,7 @@ use Lossik\Runner\Runner;
 use Lossik\Runner\Tests\Fixtures\ArraySource;
 use Lossik\Runner\Tests\Fixtures\NoParamClassProcessor;
 use Lossik\Runner\Tests\Fixtures\RecordingProcessor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class RunnerTest extends TestCase
@@ -24,15 +25,29 @@ final class RunnerTest extends TestCase
         ContainerFactory::cleanup();
     }
 
-    public function testRunWithInjectDecoratorPassesParametersToProcessor(): void
+    /**
+     * @return array<string, array{bool, bool}>
+     */
+    public static function containerSetups(): array
+    {
+        return [
+            'A: no decorator' => [false, true],
+            'B: decorator inject: true' => [true, true],
+            'C: no InjectExtension' => [false, false],
+        ];
+    }
+
+    #[DataProvider('containerSetups')]
+    public function testRunPassesParametersToProcessor(bool $decorator, bool $injectExtension): void
     {
         $neon = $this->neon(
             '    jobA:' . "\n"
             . '        processor: {class: ' . RecordingProcessor::class . '}' . "\n"
             . '        source: {class: ' . ArraySource::class . '}' . "\n",
+            $decorator,
         );
 
-        ContainerFactory::create($neon)->getByType(Runner::class)->Run('jobA');
+        ContainerFactory::create($neon, $injectExtension)->getByType(Runner::class)->Run('jobA');
 
         $this->assertSame([['setup'], ['process', self::PAYLOAD]], RecordingProcessor::$log);
     }
@@ -56,10 +71,12 @@ final class RunnerTest extends TestCase
         );
     }
 
-    private function neon(string $jobs): string
+    private function neon(string $jobs, bool $decorator = true): string
     {
         return 'extensions:' . "\n" . '    runner: Lossik\\Runner\\RunnerExtension' . "\n\n"
-            . 'decorator:' . "\n" . '    Lossik\\Runner\\Runner:' . "\n" . '        inject: true' . "\n\n"
+            . ($decorator
+                ? 'decorator:' . "\n" . '    Lossik\\Runner\\Runner:' . "\n" . '        inject: true' . "\n\n"
+                : '')
             . 'runner:' . "\n" . $jobs;
     }
 }
