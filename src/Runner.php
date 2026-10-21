@@ -153,6 +153,9 @@ class Runner
     {
         $result = [];
         foreach ($parameters as $parameter) {
+            if (!isset($this->parameters[$parameter])) {
+                throw new LogicException(sprintf('Parameter "%s" is not registered.', $parameter));
+            }
             $parameterName = $this->parameters[$parameter]->getName();
             $items = $this->parameters[$parameter]->getParametersItems($sourceData);
             foreach ($items as $parameter_id => $item) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lossik\Runner\Tests;
 
+use LogicException;
 use Lossik\Runner\Runner;
 use Lossik\Runner\Tests\Fixtures\ArraySource;
 use Lossik\Runner\Tests\Fixtures\NoParamClassProcessor;
@@ -69,6 +70,20 @@ final class RunnerTest extends TestCase
             [['setup'], ['process', self::PAYLOAD], ['process', self::PAYLOAD]],
             RecordingProcessor::$log,
         );
+    }
+
+    public function testUnregisteredParameterThrowsLogicExceptionNamingIt(): void
+    {
+        $neon = $this->neon(
+            '    job2:' . "\n"
+            . '        processor: {class: ' . NoParamClassProcessor::class . '}' . "\n"
+            . '        source: {class: ' . ArraySource::class . '}' . "\n",
+        );
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches('/\bv\b/');
+
+        ContainerFactory::create($neon)->getByType(Runner::class)->Run('job2');
     }
 
     public function testServiceProcessorGetsItsParameters(): void
