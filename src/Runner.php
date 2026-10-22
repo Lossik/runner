@@ -12,13 +12,16 @@ class Runner
     public Container $di;
 
     /**
-     * @var array<mixed>
+     * @var array<string, array{processor: array<string, mixed>, source?: array<string, mixed>}>
      */
     protected array $settings;
 
     /** @var array<IParameter> */
     protected array $parameters = [];
 
+    /**
+     * @param array<string, array{processor: array<string, mixed>, source?: array<string, mixed>}> $settings
+     */
     public function __construct(array $settings)
     {
         $this->settings = $settings;
@@ -50,10 +53,8 @@ class Runner
         foreach ($runn as $setting) {
             $processor = $this->createProcessor($setting['processor']);
             $sourceData = isset($setting['source']) ? $this->getSourceData($setting['source']) : [];
-            if ($processor instanceof IProcessor) {
-                $parameters = $this->getParameters($sourceData, $processor->getParameters());
-                $processor->process($parameters);
-            }
+            $parameters = $this->getParameters($sourceData, $processor->getParameters());
+            $processor->process($parameters);
         }
     }
 
@@ -81,12 +82,10 @@ class Runner
             $setup = self::ifset($settingProcessor, 'setup', []);
             $processor = $this->create($class, $setup, IProcessor::class);
         }
-        if ($processor instanceof IProcessor) {
-            foreach ($processor->getParametersClasses() as $parametersClass) {
-                $parameter = $this->create($parametersClass, [], IParameter::class);
-                $processor->setupParameter($parameter);
-                $this->registerParameter($parameter);
-            }
+        foreach ($processor->getParametersClasses() as $parametersClass) {
+            $parameter = $this->create($parametersClass, [], IParameter::class);
+            $processor->setupParameter($parameter);
+            $this->registerParameter($parameter);
         }
 
         return $processor;
@@ -102,7 +101,7 @@ class Runner
     private static function ifset(array $array, string $path, mixed $default = null, string $pathDelimiter = '/'): mixed
     {
         foreach ($p = explode($pathDelimiter, $path) as $key) {
-            if (isset($array[$key])) {
+            if (is_array($array) && isset($array[$key])) {
                 $array = $array[$key];
             } else {
                 return $default;
@@ -114,9 +113,9 @@ class Runner
 
     /**
      * @template T of object
-     * @param string          $class
-     * @param array<mixed>    $setup
-     * @param class-string<T> $instanceof
+     * @param string                           $class
+     * @param list<array{string, array<mixed>}> $setup      method calls as [method, arguments]
+     * @param class-string<T>                  $instanceof
      * @return T
      */
     protected function create(string $class, array $setup, string $instanceof): object
@@ -132,6 +131,7 @@ class Runner
             $object->{$method}(...$arguments);
         }
 
+        /** @var T $object the instanceof check above passed ($instanceof is a non-empty class-string<T>) */
         return $object;
     }
 
@@ -186,9 +186,7 @@ class Runner
         $this->assertKnownProcessor($processorName);
         $setting = $this->settings[$processorName];
         $processor = $this->createProcessor($setting['processor']);
-        if ($processor instanceof IProcessor) {
-            $parameters = $this->getParameters($sourceData, $processor->getParameters());
-            $processor->process($parameters);
-        }
+        $parameters = $this->getParameters($sourceData, $processor->getParameters());
+        $processor->process($parameters);
     }
 }

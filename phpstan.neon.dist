@@ -2,3 +2,22 @@ parameters:
 	level: max
 	paths:
 		- src
+	ignoreErrors:
+		# The job configuration is not validated: createService() and create() get mixed values from it. A type guard would
+		# change behaviour (a processor without class/service and a non-string class or setup end with TypeError, X7).
+		-
+			identifier: argument.type
+			path: src/Runner.php
+			count: 5
+		# include given as a value that is neither a string nor an array (e.g. include: 5) ends with TypeError
+		# (tests/IncludeTest.php holds it); a guard would change that behaviour.
+		# realpath() of a path that is_dir()/is_file() just confirmed: filtering out a false result would turn today's
+		# TypeError into a silent skip (behaviour change).
+		-
+			identifier: argument.type
+			path: src/RunnerExtension.php
+			count: 2
+		-
+			identifier: return.type
+			path: src/RunnerExtension.php
+			count: 1

@@ -37,4 +37,5 @@ fi
 composer check-platform-reqs
 composer dump-autoload --strict-psr -o -q
 vendor/bin/phpcs
+if [ "${DEPS:-highest}" != lowest ]; then vendor/bin/phpstan analyse --no-progress; fi
 vendor/bin/phpunit

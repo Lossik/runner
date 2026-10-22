@@ -16,6 +16,7 @@ class RunnerExtension extends CompilerExtension
     public function loadConfiguration()
     {
         $container = $this->getContainerBuilder();
+        /** @var array<string, mixed> $config no getConfigSchema() override: the default Expect::array() yields an array */
         $config = $this->getConfig();
 
         $config = $this->expandConfigInclude($config);
@@ -26,8 +27,8 @@ class RunnerExtension extends CompilerExtension
     }
 
     /**
-     * @param array $config
-     * @return array
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
      */
     protected function expandConfigInclude(array $config): array
     {
@@ -41,6 +42,7 @@ class RunnerExtension extends CompilerExtension
         foreach ($incFiles as $file) {
             if (!in_array($file, $this->includedFiles)) {
                 $this->compiler->addDependencies([$file]);
+                /** @var array<string, mixed> $config merge of two arrays is an array */
                 $config = Helpers::merge($neon->load($file), $config);
                 $this->includedFiles[] = $file;
             }
