@@ -8,6 +8,7 @@ use LogicException;
 use Lossik\Runner\Runner;
 use Lossik\Runner\Tests\Fixtures\ArraySource;
 use Lossik\Runner\Tests\Fixtures\NoParamClassProcessor;
+use Lossik\Runner\Tests\Fixtures\OldParameterProcessor;
 use Lossik\Runner\Tests\Fixtures\RecordingProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -99,6 +100,27 @@ final class RunnerTest extends TestCase
         ContainerFactory::create($neon)->getByType(Runner::class)->Run('jobSvc');
 
         $this->assertSame([['setup'], ['process', self::PAYLOAD]], RecordingProcessor::$log);
+    }
+
+    public function testServiceProcessorParameterOverwritesEarlierOneOfSameName(): void
+    {
+        $neon = $this->neon(
+            '    job1:' . "\n"
+            . '        processor: {class: ' . OldParameterProcessor::class . '}' . "\n"
+            . '        source: {class: ' . ArraySource::class . '}' . "\n"
+            . '    job2:' . "\n"
+            . '        processor: {service: procSvc}' . "\n"
+            . '        source: {class: ' . ArraySource::class . '}' . "\n",
+            true,
+            '    procSvc: ' . RecordingProcessor::class . "\n",
+        );
+
+        ContainerFactory::create($neon)->getByType(Runner::class)->Run();
+
+        $this->assertSame(
+            [['setup'], ['process', [1 => ['v' => 'old']]], ['setup'], ['process', self::PAYLOAD]],
+            RecordingProcessor::$log,
+        );
     }
 
     /**
