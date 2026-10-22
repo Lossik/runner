@@ -23,14 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `Run()` works without `inject: true` for the `Runner` service.
-- A processor defined as a service gets its parameters.
-- An unregistered parameter throws `LogicException` naming the parameter.
-- An `include` directory without the trailing `/` is read.
-- `include` accepts a single path as a string.
-- An unknown job in `Run()` or `RunWidthSourceData()` throws `LogicException`.
 - In debug mode the container is rebuilt when an included file changes or a `.neon` file is added to an included
   directory.
-- The `.neon` extension of included files is checked (case-insensitive) instead of the end of the file name.
 - Docblock types corrected (PHPStan level max).
 
 ### Added
