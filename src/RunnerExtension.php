@@ -42,8 +42,13 @@ class RunnerExtension extends CompilerExtension
         foreach ($incFiles as $file) {
             if (!in_array($file, $this->includedFiles)) {
                 $this->compiler->addDependencies([$file]);
+                $loaded = $neon->load($file);
+                // a string include must be a list before the merge, which concatenates only list + list
+                if (isset($loaded['include']) && is_string($loaded['include'])) {
+                    $loaded['include'] = [$loaded['include']];
+                }
                 /** @var array<string, mixed> $config merge of two arrays is an array */
-                $config = Helpers::merge($neon->load($file), $config);
+                $config = Helpers::merge($loaded, $config);
                 $this->includedFiles[] = $file;
             }
         }

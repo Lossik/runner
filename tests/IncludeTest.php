@@ -33,6 +33,7 @@ final class IncludeTest extends TestCase
             'directory with trailing slash' => ["['{dir}/inc/']", ['jobInc', 'main']],
             'directory without trailing slash' => ["['{dir}/inc']", ['jobInc', 'main']],
             'file' => ["['{dir}/single.neon']", ['jobFile', 'main']],
+            'file with upper-case extension' => ["['{dir}/ext/x.NEON']", ['jobUpper', 'main']],
             'string instead of list' => ["'{dir}/single.neon'", ['jobFile', 'main']],
             'directory from %parameter%' => ["['%incDir%/']", ['jobInc', 'main']],
             'only *.neon files, extension case-insensitive' => ["['{dir}/ext/']", ['jobA1', 'jobUpper', 'main']],
@@ -66,6 +67,42 @@ final class IncludeTest extends TestCase
 
         sort($jobs);
         $this->assertSame($expectedJobs, $jobs);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function includesOfTwoIncludedFiles(): array
+    {
+        return [
+            'string and string' => ["'{dir}/x.neon'", "'{dir}/y.neon'"],
+            'list and string' => ["['{dir}/x.neon']", "'{dir}/y.neon'"],
+            'string and list' => ["'{dir}/x.neon'", "['{dir}/y.neon']"],
+        ];
+    }
+
+    #[DataProvider('includesOfTwoIncludedFiles')]
+    public function testIncludesOfTwoIncludedFilesAreAllLoaded(string $includeA, string $includeB): void
+    {
+        $dir = ContainerFactory::tempDir();
+        file_put_contents($dir . '/x.neon', $this->job('jobX'));
+        file_put_contents($dir . '/y.neon', $this->job('jobY'));
+        file_put_contents(
+            $dir . '/a.neon',
+            'include: ' . str_replace('{dir}', $dir, $includeA) . "\n" . $this->job('jobA'),
+        );
+        file_put_contents(
+            $dir . '/b.neon',
+            'include: ' . str_replace('{dir}', $dir, $includeB) . "\n" . $this->job('jobB'),
+        );
+        $neon = $this->neon(
+            "    include: ['" . $dir . "/a.neon', '" . $dir . "/b.neon']\n" . $this->job('main', '    '),
+        );
+
+        $jobs = ContainerFactory::create($neon)->getByType(Runner::class)->getProcessors();
+
+        sort($jobs);
+        $this->assertSame(['jobA', 'jobB', 'jobX', 'jobY', 'main'], $jobs);
     }
 
     public function testSameFileIncludedTwiceUnderDifferentPathsIsMergedOnce(): void
