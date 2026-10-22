@@ -13,4 +13,4 @@ if command -v cygpath >/dev/null 2>&1; then
 fi
 MSYS_NO_PATHCONV=1 docker run --rm -e DEPS="${DEPS:-highest}" \
 	-v "$ROOT:/src:ro" -v "$CACHE:/root/.cache/composer" "php:${PATCH}-cli" \
-	bash -c 'mkdir /app && cp -a /src/. /app && cd /app && rm -rf vendor composer.lock && bash tools/ci.sh'
+	bash -c 'mkdir /app && cp -a /src/. /app && cd /app && rm -rf vendor composer.lock phpunit.xml phpstan.neon phpcs.xml .phpunit.cache && bash tools/ci.sh'

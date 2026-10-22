@@ -15,7 +15,8 @@ echo "PHP " . PHP_VERSION . " ok (>= " . $min[$branch] . ")\n";'
 
 # 2) tools in the container: git + unzip (Composer dist), Composer phar with a verified SHA-384
 if ! command -v unzip >/dev/null || ! command -v git >/dev/null; then
-	apt-get update -qq && apt-get install -y -qq git unzip >/dev/null
+	apt-get update -qq
+	apt-get install -y -qq git unzip >/dev/null
 fi
 if ! command -v composer >/dev/null; then
 	expected="$(curl -fsS https://composer.github.io/installer.sig)"

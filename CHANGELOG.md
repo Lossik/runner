@@ -13,10 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New direct requirements `nette/neon ^3.4` and `nette/schema ^1.0`.
   Lowest tested: `nette/di` 3.0.14 (PHP 8.2) … 3.2.5 (PHP 8.5).
 - A processor defined as a service now gets `setupParameter()` with its parameters and registers them, replacing a
-  parameter registered under the same name.
+  parameter registered under the same name. Its `getParametersClasses()` are now instantiated, so a parameter class
+  that cannot be created now fails for a service processor too (previously only for a processor defined by class).
 - Jobs from an `include` directory given without the trailing `/` are now loaded and run.
-- Only files with the `.neon` extension are included; a file such as `aneon` in an included directory is no longer
-  loaded.
+- Only files with the `.neon` extension are included; a file such as `aneon` in an included directory or listed
+  directly in `include` is no longer loaded.
 - `include` given as a single string is now accepted as one path (previously `TypeError`).
 - An unknown job and an unregistered parameter now throw `LogicException` instead of `TypeError` / `Error`.
 

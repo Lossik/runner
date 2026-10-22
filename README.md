@@ -152,7 +152,8 @@ runner:
 ### Including files
 
 Each item of `include` is a file or a directory. A directory contributes its files with the `.neon` extension
-(case-insensitive: `jobs.NEON` is loaded, `jobs.neon.bak` is not); the trailing `/` is optional. An included file has
+(case-insensitive: `jobs.NEON` is loaded, `jobs.neon.bak` is not); the trailing `/` is optional. A file listed
+directly must have the `.neon` extension too (case-insensitive); other files are skipped. An included file has
 the same shape as the `runner` section, so it may contain jobs and its own `include`. A path that does not exist is
 skipped. A file reached through different paths is loaded only once.
 
